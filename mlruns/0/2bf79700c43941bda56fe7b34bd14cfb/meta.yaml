@@ -1,0 +1,15 @@
+artifact_uri: mlflow-artifacts:/0/2bf79700c43941bda56fe7b34bd14cfb/artifacts
+end_time: 1675634753248
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 2bf79700c43941bda56fe7b34bd14cfb
+run_name: gregarious-toad-157
+run_uuid: 2bf79700c43941bda56fe7b34bd14cfb
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1675634714830
+status: 3
+tags: []
+user_id: utilisateur

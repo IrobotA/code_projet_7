@@ -1,6 +1,0 @@
-In graph 'Ext Source and Age Features Pairs Plot'
-removed size parameter because notr existing anymore
-
-in polynomial features step replaces sklearn.preprocessing import Imputer by SimpleImputer
-
-get_feature_names_out instead of get_features_names

@@ -1,0 +1,15 @@
+artifact_uri: file:///c:/Users/utilisateur/Documents/MyAmaWok/OC%20Data%20Scientist/Projet%20OC%207%20Implementer%20un%20modele%20de%20Scoring/code_oc_projet_7/Data%20analysis_1/mlruns/0/51b9c25e0ce94e71ad47b5a2a29269bd/artifacts
+end_time: 1675633994837
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 51b9c25e0ce94e71ad47b5a2a29269bd
+run_name: unruly-boar-985
+run_uuid: 51b9c25e0ce94e71ad47b5a2a29269bd
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1675633993272
+status: 3
+tags: []
+user_id: utilisateur

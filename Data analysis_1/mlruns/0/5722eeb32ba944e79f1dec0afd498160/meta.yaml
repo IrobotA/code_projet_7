@@ -1,0 +1,15 @@
+artifact_uri: file:///c:/Users/utilisateur/Documents/MyAmaWok/OC%20Data%20Scientist/Projet%20OC%207%20Implementer%20un%20modele%20de%20Scoring/code_oc_projet_7/Data%20analysis_1/mlruns/0/5722eeb32ba944e79f1dec0afd498160/artifacts
+end_time: 1675633956992
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 5722eeb32ba944e79f1dec0afd498160
+run_name: upbeat-conch-867
+run_uuid: 5722eeb32ba944e79f1dec0afd498160
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1675633956401
+status: 3
+tags: []
+user_id: utilisateur
