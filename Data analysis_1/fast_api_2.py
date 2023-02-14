@@ -8,8 +8,8 @@ from fastapi import FastAPI
 import numpy as np
 import pandas as pd
 import pickle
-
 import pandas as pd
+
 # 2. Create the app object
 app = FastAPI()
 

@@ -57,4 +57,5 @@ button.on_click(graph)#apres click va dans la fonction graph
 auto_complete_input.on_change('value',update_id) #quand la valeur est changée apres entrée ou click va dans la focntion update id
 
 curdoc().add_root(row(column(auto_complete_input,button,p),text)) #row organise sur la meme rangée, column organise les uns en dessous des autres
-# bokeh serve --show "Data analysis_1"\interface.py
+# bokeh serve --show "Data analysis_1"\interface.py => tuto qui a aidé en partie https://www.codemag.com/Article/2111061/Building-Dashboards-Using-Bokeh
+#https://stackoverflow.com/questions/54772820/bokeh-custom-layout pour organisation des graph
