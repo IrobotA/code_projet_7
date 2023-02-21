@@ -10,19 +10,17 @@ from bokeh.events import ButtonClick
 from bokeh.models import PreText
 import pandas as pd
 
-id_list = pd.read_csv('../datasets/new_df_test.csv',usecols=['SK_ID_CURR']) # import colonne id de test
+id_list = pd.read_csv(r'C:/Users/utilisateur/Documents/MyAmaWok/OC Data Scientist/Projet OC 7 Implementer un modele de Scoring/datasets/new_df_test.csv',usecols=['SK_ID_CURR']) # import colonne id de test
 completion_list = [str(id) for id in id_list["SK_ID_CURR"].tolist()]        #liste des identifiants des clientst
 
 text = PreText(text=("")) #on ne met rien au départ
 
 source = ColumnDataSource (data = {'feature_importance':[0],
                                    'colonnes':[0]}) #graph sans rien au départ
-
 dict_credit = {1 :'payée',
                0 :'refusée'} # dico pour mapping apres avec la prédiction
 
 url = "http://127.0.0.1:8000/predict/"  #url de l'api pour récupérer prédiction et feature importance
-
 
 p = figure(
     title='Feature importance',
@@ -44,7 +42,7 @@ def graph(event): #event obligatoire  pour ce composant
     new_data['feature_importance']=data_retrieved['feature_importance'][0] #premiere ligne
     new_data['colonnes']= [i for i in range(len(data_retrieved['feature_importance'][0]))] #sinon ne chnage qu'une information à la fois 0 index de la ligne
     source.data = new_data
-    text.text='Le crédit a été {} pour l\'id {}'.format(dict_credit[data_retrieved['prediction']],value_input) #100057 feature importance = 0 pk ? 
+    text.text=('Le crédit a été {} pour l\'id {}'.format(dict_credit[data_retrieved['prediction']],value_input),default_size = 3000) #100057 feature importance = 0 pk ? 
     print(new_data) #debugging si graph n'apparait pas
     
     
