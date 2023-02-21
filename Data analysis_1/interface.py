@@ -29,12 +29,11 @@ p = figure(
     x_axis_label="Variables",
     y_axis_label="Feature Importance"
 ) #config graph de base
-
-
 p.vbar(x= 'colonnes', top='feature_importance', width=0.5, source=source)#ajout du nom des axes et la source des données
 
 def update_id(attr, old, new):#attrname, old, new => obligatoire pour ce composant
-    global res  #pour récupérer la variable pour le graph
+    global res
+    global value_input #pour récupérer la variable pour le graph
     value_input = auto_complete_input.value # valeur dans le champs
     res = requests.post(url+value_input) #requete a fastapi
       
@@ -42,11 +41,12 @@ def update_id(attr, old, new):#attrname, old, new => obligatoire pour ce composa
 def graph(event): #event obligatoire  pour ce composant
     data_retrieved = json.loads(res._content.decode('utf-8')) #data_retrieved
     new_data = dict() # pour instancier en un seul coup avec les nouvelles données sinon erreur de longueur des colonnes
-    new_data['feature_importance']=data_retrieved['f'][0]
-    new_data['colonnes']= [i for i in range(len(data_retrieved['f'][0]))] #sinon ne chnage qu'une information à la fois
+    new_data['feature_importance']=data_retrieved['feature_importance'][0] #premiere ligne
+    new_data['colonnes']= [i for i in range(len(data_retrieved['feature_importance'][0]))] #sinon ne chnage qu'une information à la fois 0 index de la ligne
     source.data = new_data
-    text.text='Le crédit a été {}'.format(dict_credit[data_retrieved['prediction'][0]])
-    #print(len(data_retrieved['f'][0]), len(data_retrieved['f'][0]))
+    text.text='Le crédit a été {} pour l\'id {}'.format(dict_credit[data_retrieved['prediction']],value_input) #100057 feature importance = 0 pk ? 
+    print(new_data) #debugging si graph n'apparait pas
+    
     
     
 auto_complete_input =  AutocompleteInput(title="Veuillez saisir l\'id client:",
