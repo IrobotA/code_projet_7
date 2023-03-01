@@ -1,0 +1,6 @@
+artifact_location: mlflow-artifacts:/480333520800850632
+creation_time: 1677176338569
+experiment_id: '480333520800850632'
+last_update_time: 1677176338569
+lifecycle_stage: active
+name: Pipeline + Gridsearch
