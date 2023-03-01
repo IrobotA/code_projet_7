@@ -1,0 +1,6 @@
+{
+    "jupyter.kernels.filter": [
+    
+    ],
+    "python.analysis.typeCheckingMode": "basic"
+}

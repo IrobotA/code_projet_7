@@ -1,7 +1,7 @@
 
 from bokeh.models import AutocompleteInput
 import requests #api request
-import json # convert from bytes to dict 
+import json # convert from bytes,v to dict 
 from bokeh.models import ColumnDataSource#?
 from bokeh.plotting import curdoc, figure
 from bokeh.models import Button
@@ -9,6 +9,7 @@ from bokeh.layouts import column, gridplot,row,layout
 from bokeh.events import ButtonClick
 from bokeh.models import PreText
 import pandas as pd
+import numpy as np # à rajouter à requirements
 
 id_list = pd.read_csv(r'C:/Users/utilisateur/Documents/MyAmaWok/OC Data Scientist/Projet OC 7 Implementer un modele de Scoring/datasets/new_df_test.csv',usecols=['SK_ID_CURR']) # import colonne id de test
 completion_list = [str(id) for id in id_list["SK_ID_CURR"].tolist()]        #liste des identifiants des clientst
@@ -27,7 +28,12 @@ p = figure(
     x_axis_label="Variables",
     y_axis_label="Feature Importance"
 ) #config graph de base
-p.vbar(x= 'colonnes', top='feature_importance', width=0.5, source=source)#ajout du nom des axes et la source des données
+p.vbar(x= 'colonnes', top='feature_importance', width=0.5, source=source)#ajout du nom des axes et la source des données# create the horizontal histogram
+
+
+
+
+
 
 def update_id(attr, old, new):#attrname, old, new => obligatoire pour ce composant
     global res
