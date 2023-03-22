@@ -333,7 +333,7 @@ def upload_data(attr, old, new):  # charger et envoyer df fastapi nettoyage
     #chargement df
     loading_div[0] = Div(text="File is being loaded...", width=200, height=50)
     flag_upload[0] = 1
-    url = "http://127.0.0.1:8000/uploadfile/"
+    url = "https://test-deploiement-fastapi-v1.azurewebsites.net/uploadfile/"
     print("dataset has been uploaded succesfully")
     decoded = base64.b64decode(new)
     f = io.BytesIO(decoded)
@@ -382,8 +382,8 @@ def update_id(attr, old, new):  # attrname, old, new => obligatoire pour ce comp
 
         
     if flag_upload[0] == 0:# demo ou aucune donnéee rajoutée
-        url =  "http://127.0.0.1:8000"
-        res = requests.post(url+"/predict/"+str(value_input))
+        url =  "https://test-deploiement-fastapi-v1.azurewebsites.net/predict/"
+        res = requests.post(url+str(value_input))
         print('contenu apres envoi '+str(value_input), res._content)
         
         df_retrieved[0]=df[df['SK_ID_CURR'] == int(value_input)] #ligne d'info d'un id 

@@ -3,6 +3,8 @@ import pandas as pd
 import numpy as np
 import re 
 from fastapi.encoders import jsonable_encoder
+import shap 
+
 
 
 test_2 = pd.read_csv(r'C:\Users\utilisateur\Documents\MyAmaWok\OC Data Scientist\Projet OC 7 Implementer un modele de Scoring\datasets\application_test.csv')
