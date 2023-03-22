@@ -1,0 +1,6 @@
+artifact_location: mlflow-artifacts:/305121319602746505
+creation_time: 1679038526414
+experiment_id: '305121319602746505'
+last_update_time: 1679038526414
+lifecycle_stage: active
+name: classifier_ + Halving_Gridsearch
