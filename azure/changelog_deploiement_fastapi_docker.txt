@@ -1,0 +1,27 @@
+27/03/2023
+
+modfication CMD :
+"gunicorn -w 4 -b" à la place de "uvicorn" avec sur Azure Portal PORT 8080 et WEBSITES_PORT 8080=> 0
+
+rajout de startup.sh avec ADD pour voir si changement lié à fonctionnement azure
+avec sur Azure Portal PORT 8080 et WEBSITES_PORT 8080 => 0 
+
+changement du port de façon successive, 8000, 9000, 14957 (suite à constat que quand lancé en local allait sur un nombre similaire)avec sur Azure Portal PORT 8080 et WEBSITES_PORT 8080
+
+rajout ENV 8080 dans les , suite à exemple sur internet => 0
+déplacement ADD 8080 apres FROM python suite à commentaire sur internet => 0
+
+
+Observation du log stream (log d'azure sur la totalité du process de déploiement)
+
+
+v11 = expose 9000 et dans CMD "9000", sur azure avec sur Azure Portal PORT 9000 et WEBSITES_PORT 9000
+pour voir erreur logs
+
+2023-03-28T05:10:38.141227782Z Extracting '/home/site/wwwroot/output.tar.gz' to directory '/tmp/8db2f4a917e014f'...
+2023-03-28T05:10:42.621254044Z App path is set to '/tmp/8db2f4a917e014f'
+2023-03-28T05:10:43.894139338Z Writing output script to '/opt/startup/startup.sh'
+2023-03-28T05:10:44.764503014Z Using packages from virtual environment antenv located at /tmp/8db2f4a917e014f/antenv.
+2023-03-28T05:10:44.765530713Z Updated PYTHONPATH to '/opt/startup/app_logs:/tmp/8db2f4a917e014f/antenv/lib/python3.8/site-packages'
+2023-03-28T05:10:44.917643169Z /opt/startup/startup.sh: 26: /opt/startup/startup.sh: startup.sh: not found
+

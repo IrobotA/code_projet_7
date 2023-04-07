@@ -326,14 +326,12 @@ def update_graph(attr, old, new):
     print(graph_val,df[graph_val])
     
     
-    
-    
 # FileInput => df => cleaned_df => post => feature_importance & prediction & score
 def upload_data(attr, old, new):  # charger et envoyer df fastapi nettoyage
     #chargement df
     loading_div[0] = Div(text="File is being loaded...", width=200, height=50)
     flag_upload[0] = 1
-    url = "https://test-deploiement-fastapi-v1.azurewebsites.net/uploadfile/"
+    url = "https://docker-projet-7.azurewebsites.net/uploadfile/"
     print("dataset has been uploaded succesfully")
     decoded = base64.b64decode(new)
     f = io.BytesIO(decoded)
@@ -382,7 +380,7 @@ def update_id(attr, old, new):  # attrname, old, new => obligatoire pour ce comp
 
         
     if flag_upload[0] == 0:# demo ou aucune donnéee rajoutée
-        url =  "https://test-deploiement-fastapi-v1.azurewebsites.net/predict/"
+        url =  "https://docker-projet-7.azurewebsites.net/predict/"
         res = requests.post(url+str(value_input))
         print('contenu apres envoi '+str(value_input), res._content)
         
@@ -412,7 +410,6 @@ def update_id(attr, old, new):  # attrname, old, new => obligatoire pour ce comp
         text.text = 'Le crédit sera {} pour l\'id {} et le score est de {}'.format(
         dict_credit[df_retrieved[1]['prediction']], value_input,df_retrieved[1]['score'])  # 100057
         dot_flag[0]=1
-
 #####################################################  select   ###############################################################
 x_select = Select(title='X-Axis Variable:',
                   options=[val  for val in df.columns if val not in  ['SK_ID_CURR','FLAG_MOBIL']], value='NAME_TYPE_SUITE')
@@ -424,7 +421,6 @@ y_select_2 = Select(title='Y-Axis Variable:',
                   options=[val  for val in df.select_dtypes(exclude='object').columns if val not in  ['SK_ID_CURR','FLAG_MOBIL']],value='DAYS_REGISTRATION')
 graph_select = Select(title='Distribution de la variable:',
                   options=[val  for val in df.columns if val not in  ['SK_ID_CURR','FLAG_MOBIL']],value='DAYS_REGISTRATION')
-
 #####################################################  widgets callback config   ###############################################################
 # Bind the callback function to the Select widgets
 x_select.on_change('value', update_select_1)
@@ -434,8 +430,6 @@ y_select_2.on_change('value', update_select_2)
 graph_select.on_change('value', update_graph)
 auto_complete_input.on_change('value', update_id)#new
 file_input.on_change('value', upload_data)#new
-
-
 #####################################################  layout   ###############################################################
 # Create a layout for the widgets
 #loading_div[0] = Div(text="Loading file...", width=200, height=50)
