@@ -1,7 +1,8 @@
 import base64
 import io
+from time import sleep
 from bokeh.plotting import figure, curdoc
-from bokeh.models import ColumnDataSource, Select, Div,AutocompleteInput,FileInput,PreText,Range1d,FactorRange,Plot, VBar
+from bokeh.models import ColumnDataSource, Select, Div,AutocompleteInput,FileInput,PreText,Range1d,FactorRange,Plot, VBar,LabelSet
 #from bokeh.models.widgets import Spacer
 from bokeh.layouts import column, row
 import pandas as pd
@@ -9,18 +10,14 @@ import requests
 import json
 import numpy as np
 
-#voir comment supprimer circle apres ou remettre à 0 apres 
-
-
 # manque incorporaison df de base avec df récupéré qui remplace df de base mais avec df de sélecgtion à rajouté en rouge dans les distributions
 from feature_cleaning import nettoyage
-	
+print('debut')
 
 
 # Load some sample data
 df = pd.read_csv("application_test.csv")
 df = df.sample(150,random_state=42).copy()
-
 df_f = pd.read_csv('shap_glob_val_sup_0.csv')
 data_f = df_f[df_f['feature_importance']>0.001]
 #fig = pd.read_csv()  # faire sur model prediction ipynb et exporter dataset #feature_importance_global des variables d'entrainement
@@ -28,8 +25,11 @@ dict_credit = {0: 'remboursé',
                1: 'non remboursé'}
 
 nettoyage(df)
+print('Nombre de valeurs manquantes : ',df.isna().sum().sum())
 loading_div = [0]
-loading_div[0] = Div(text="Waiting for file...", width=200, height=50)
+#loading_div[0] = Div(text="Waiting for file...", width=200, height=50)
+decoded=[0]
+value_input=[0]
 
 #####################################################  Différents widgets   ###############################################################
 
@@ -40,14 +40,12 @@ flag_upload = [0] # s'il ya eu chargement ou non
 dot_flag = [0]
 
 text = PreText(text=("Veuillez charger un ID svp"), styles={'font-size': '15pt', 'color': 'red'})
-
 source = ColumnDataSource(data={'feature_importance': [0],
                                 'colonnes': [0],
                                 'names': [0]})  # graph sans rien au départ
 
 # columns = [TableColumn(field=col, title = col) for col in df.columns]
 file_input = FileInput(accept=".csv", width=400, height=50)
-
 df_retrieved = [[],0] #df_retrieved[0]= une ligne sélectionnée par rapport à id
                                                             #df_retrieved[1] = prediction, feature importance locale, nom des variables, score
 
@@ -56,8 +54,8 @@ if len(df_retrieved[0]) == 0:
     # liste des identifiants des clients
     completion_list[0] = [str(id) for id in df["SK_ID_CURR"].tolist()]
 
-auto_complete_input = AutocompleteInput(completions=completion_list[0], description='ex 100001',
-                                        placeholder="Veuillez saisir l\'id client par exemple 100001...",
+auto_complete_input = AutocompleteInput(completions=completion_list[0], description='ex 101099',
+                                        placeholder="Veuillez saisir l\'id client par exemple 101099...",
                                         min_width=300,
                                         restrict=True)  # configuration liste auto suggestion seule
 
@@ -154,75 +152,128 @@ fl.outline_line_color = None
 
 def update_select_1(attr, old, new):
     # Update the x and y values of the ColumnDataSource object based on the selected variable
-    print('test_avant_changement')
+    print('select_1')
     x_val = x_select.value
     y_val = y_select.value
     print('x_val =',x_val)
-    print(df[x_val])
+    print(df[x_val].value_counts(dropna=False))
     print('y_val =',y_val)
-    print(df[y_val])
+    print(df[y_val].value_counts(dropna=False))
+    
     #selection  scatterplot #que des valeurs continues
-    if (df[x_val].dtype != 'object') & (df[y_val].dtype != 'object'):  # sélection graphique
+    if (df[x_val].nunique()<=10) & (df[y_val].nunique()<=3): # x10 catégories, y maximum 3 # variables num transfo catégorielles/ plusieurs categ x et y 
+        # si une valeur dans id ou chargement a été sélectionnée
+        print('categorique multi index')
+        teest_ = df.groupby([x_val,y_val]).size() 
+        source_c = ColumnDataSource(data={'x':[(str(i[0]), str(i[1])) for i in teest_.index],'y':teest_.values})
+        c = figure(x_range=FactorRange(*[(str(i[0]), str(i[1])) for i in teest_.index]),height=400,tooltips=TOOLTIPS_2,width=400,
+           sizing_mode="stretch_both")
+        c_dot = [c.circle(name='c_dot')]
+        if len(df_retrieved[0]) != 0:
+            c.renderers.remove(c_dot[0])
+            df_teest_ = teest_.reset_index()
+            index = df_teest_[(df_teest_[x_val] == df_retrieved[0][x_val].values[0]) & (df_teest_[y_val] == df_retrieved[0][y_val].values[0])][[x_val, y_val]].values[0]
+            index_str = tuple(str(el)for el in index) # sous forme multi index
+            c_dot[0] = c.circle(x=[index_str], y=teest_[index[0], index[1]]/2,size=10, color='red',name='c_dot')  # red_dot
+            print('ajout point rouge')
+            
+        c.vbar(x='x', top='y', source=source_c, width=0.5)
+        c.xaxis.axis_label = x_val
+        c.yaxis.axis_label = y_val
+        labels = LabelSet(x='x', y='y', text='y', level='glyph',
+                         x_offset=0, y_offset=0, source=source_c,
+                         text_color='black',text_align='center')
+        c.add_layout(labels)
+        layout.children[1] = c
+        print(5)
         
-        source_s.data['x'] = df[x_val]  # nouvelles colonnes chargées
-        source_s.data['y'] = df[y_val]  # nouvelles colonnes chargées 
-        s.xaxis.axis_label = x_val
-        s.yaxis.axis_label = y_val
-        # add a point to the chart
+    elif (df[x_val].dtype != 'object') & (df[y_val].dtype != 'object'):  #
+        
         if len(df_retrieved[0]) != 0 : #si une valeur dans id ou chargement a été sélectionnée
             s.renderers.remove(s_dot[0])
-            s_dot[0] = s.circle(x=df_retrieved[0][x_val], y=df_retrieved[0]
-                                [y_val], size=10, color='red', name='s_dot')  # red_dot
+            s_dot[0] = s.circle(x=df_retrieved[0][x_val], y=df_retrieved[0][y_val],
+                                size=10, color='red', name='s_dot')  # red_dot
+            print('ajout point rouge')
+        
+        source_s.data['x'] = df[x_val]  # nouvelles colonnes chargées
+        source_s.data['y'] = df[y_val]  # nouvelles colonnes chargées  # nouvelles colonnes chargées 
+        s.xaxis.axis_label = x_val
+        s.yaxis.axis_label = y_val
+        
+        
+            
         layout.children[1]=s
         print('scatter_chosen')
     #selection vbar plot x = objet
-    elif (df[x_val].dtype == 'object') & (df[y_val].dtype == 'object'):
+    elif ((df[x_val].dtype == 'object') & (df[y_val].dtype == 'object')) | ((df[x_val].dtype == 'object') & ((df[y_val].dtype != 'object') & (df[y_val].nunique()<=2))):#(df[x_val].dtype == 'object') & (df[y_val].dtype == 'object'):
         print('vbar_chosen')
         # si une valeur dans id ou chargement a été sélectionnée
         if dot_flag[0] != 0:
             b.renderers.remove(b_dot[0])
-            b_dot[0] = b.circle(x=df_retrieved[0][x_val], y=df_retrieved[0]
-                                [y_val], size=10, color='red', name='b_dot')  # red_dot
+            b_dot[0] = b.circle(x=df_retrieved[0][x_val], y=df_retrieved[0][y_val], size=10, color='red', name='b_dot')  # red_dot
         x_abs = df.groupby([x_val]).count()[y_val].index
         y_ord = df.groupby([x_val]).count()[y_val].values 
         #changement des valeurs 
-        new_data=dict()
-        new_data['x']=x_abs
-        new_data['y']=y_ord
-        source_b.data=new_data
-        print(new_data)
+        source_b.data['x']=x_abs
+        source_b.data['x']=y_ord
         b.x_range.factors = x_abs
-        b.y_range = FactorRange(y_ord)
+        b.y_range = FactorRange(str(y_ord))
         b.xaxis.axis_label = x_val
         b.yaxis.axis_label = y_val
+        labels = LabelSet(x='x', y='y', text='y', level='glyph',
+                         x_offset=0, y_offset=0, source=source_b,
+                         text_color='black',text_align='center')
+        b.add_layout(labels)
         layout.children[1]=b 
-        
-        
+           
     # x est  une variable de type float ou int       
     else : 
-        #b.renderers.remove(b_dot[0])
-        print('mean')
+        print('else', 'x_val type :' ,df[x_val].dtype,'\n',
+                      'y_val type : ',df[y_val].dtype)
+        print(dot_flag[0])
+
         # si une valeur dans id ou chargement a été sélectionnée
         if  dot_flag[0] != 0:
             b.renderers.remove(b_dot[0])
-            b_dot[0] = b.circle(x=df_retrieved[0][x_val], y=df_retrieved[0]
-                                [y_val], size=10, color='red', name='b_dot')  # red dot
-        x_abs = df.groupby([x_val]).mean(numeric_only=False)[y_val].index
-        y_ord = df.groupby([x_val]).mean(numeric_only=False)[y_val].values 
-        #changement des valeurs 
-        new_data=dict()
-        new_data['x']=x_abs
-        new_data['y']=y_ord
-        source_b.data=new_data
-        #print(new_data)
+            b_dot[0] = b.circle(x=df_retrieved[0][x_val], y=df_retrieved[0][y_val],
+                                size=10, color='red', name='b_dot')  # red dot
+            print('ajout point rouge')
+        
+        is_numeric = True
+        # si une valeur dans id ou chargement a été sélectionnée
+        if (df[y_val].dtype)=='object' : #cnt children x et flowg own realty
+            is_numeric = False
+    
+        x_abs = df.groupby([x_val]).mean(numeric_only=is_numeric)[y_val].index
+        y_ord = df.groupby([x_val]).mean(numeric_only=is_numeric)[y_val].values.round(decimals=2).tolist()
+        print(y_ord, max(y_ord))
+        source_b.data=dict(x=x_abs,y=y_ord)
         b.x_range.factors = x_abs
-        b.y_range = FactorRange(y_val)
+        start_ = 0
+        if dot_flag[0]==0 :
+            if df[y_val].mean()>0 : #variable négatif et positive
+                end_ = max(y_ord)*1.05
+            elif df[y_val].mean()<0 :
+                end_ = min(y_ord)*1.05 # si valeur négative la plus petite est la valeur la plus importante 
+        elif  dot_flag[0]==1 :
+            if (df[y_val].mean()>0) & (max(y_ord)>df_retrieved[0][y_val].values[0]) : #variable négatif et positive
+                end_ = max(y_ord)*1.05
+            elif (df[y_val].mean()<0) & (min(y_ord)<df_retrieved[0][y_val].values[0]):
+                end_ = min(y_ord)*1.05 # si valeur négative la plus petite est la valeur la plus importante 
+            elif (df[y_val].mean() < 0) & (min(y_ord) > df_retrieved[0][y_val].values[0]):
+                end_ =  df_retrieved[0][y_val].values[0]
+            elif (df[y_val].mean() > 0) & (max(y_ord) < df_retrieved[0][y_val].values[0]):
+                end_ =  df_retrieved[0][y_val].values[0]
+                
+        b.y_range.start = start_
+        b.y_range.end = end_
         b.xaxis.axis_label = x_val
         b.yaxis.axis_label = y_val
+        labels = LabelSet(x='x', y='y', text='y', level='glyph',
+                          x_offset=0, y_offset=0,source = source_b,
+                          text_color='black',text_align='center')
+        b.add_layout(labels)
         layout.children[1]=b 
-    
-        
-        
 #################################################### Select 2 #############################################################
 def update_select_2(attr, old, new):
     # Update the x and y values of the ColumnDataSource object based on the selected variable
@@ -233,65 +284,196 @@ def update_select_2(attr, old, new):
     print(df[x_val])
     print('y_val =',y_val)
     print(df[y_val])
-#################################################### Select 2 : graph modifications #############################################################   
-    #selection  scatterplot #que des valeurs continues
-    if (df[x_val].dtype != 'object') & (df[y_val].dtype != 'object'):  # sélection graphique
-        if  dot_flag[0] != 0:  #si une valeur dans id ou chargement a été sélectionnée
-            s_2.renderers.remove(s_2_dot[0])
-            s_2_dot[0]=s_2.circle(x=df_retrieved[0][x_val], y=df_retrieved[0][y_val], size=10, color='red',name='s_2_dot') # red_dot
+##################################################### Select 2 : graph modifications #############################################################   
+    if (df[x_val].nunique()<=10) & (df[y_val].nunique()<=3): # x10 catégories, y maximum 3 # variables num transfo catégorielles/ plusieurs categ x et y 
+        # si une valeur dans id ou chargement a été sélectionnée
+        print('categorique multi index')
+        teest_ = df.groupby([x_val,y_val]).size() 
+        source_c_2 = ColumnDataSource(data={'x':[(str(i[0]), str(i[1])) for i in teest_.index],'y':teest_.values})
+        c_2 = figure(x_range=FactorRange(*[(str(i[0]), str(i[1])) for i in teest_.index]),height=400,tooltips=TOOLTIPS_2,width=400,
+           sizing_mode="stretch_both")
+        c_2_dot = [c_2.circle(name='c_2_dot')]
+        if len(df_retrieved[0]) != 0:
+            c_2.renderers.remove(c_2_dot[0])
+            df_teest_ = teest_.reset_index()
+            index = df_teest_[(df_teest_[x_val] == df_retrieved[0][x_val].values[0]) & (df_teest_[y_val] == df_retrieved[0][y_val].values[0])][[x_val, y_val]].values[0]
+            index_str = tuple(str(el)for el in index) # sous forme multi index
+            c_2_dot[0] = c_2.circle(x=[index_str], y=teest_[index[0], index[1]]/2,size=10, color='red',name='c_2_dot')  # red_dot
+            print('ajout point rouge')
             
+        c_2.vbar(x='x', top='y', source=source_c_2, width=0.5)
+        c_2.xaxis.axis_label = x_val
+        c_2.yaxis.axis_label = y_val
+        labels = LabelSet(x='x', y='y', text='y', level='glyph',
+                         x_offset=0, y_offset=0, source=source_c_2,
+                         text_color='black',text_align='center')
+        c_2.add_layout(labels)
+        layout.children[3] = c_2
+        print(5)
+        
+    elif (df[x_val].dtype != 'object') & (df[y_val].dtype != 'object'):  #
+        
+        if len(df_retrieved[0]) != 0 : #si une valeur dans id ou chargement a été sélectionnée
+            s_2.renderers.remove(s_2_dot[0])
+            s_2_dot[0] = s_2.circle(x=df_retrieved[0][x_val], y=df_retrieved[0][y_val],
+                                size=10, color='red', name='s_2_dot')  # red_dot
+            print('ajout point rouge')
+        
         source_s_2.data['x'] = df[x_val]  # nouvelles colonnes chargées
-        source_s_2.data['y'] = df[y_val]  # nouvelles colonnes chargées 
+        source_s_2.data['y'] = df[y_val]  # nouvelles colonnes chargées  # nouvelles colonnes chargées 
         s_2.xaxis.axis_label = x_val
-        s_2.yaxis.axis_label = y_val 
+        s_2.yaxis.axis_label = y_val
         layout.children[3]=s_2
-        print('scatter_chosen_2')
-        
-    #selection vbar plot x = objet COUNT
-    elif (df[x_val].dtype == 'object') & (df[y_val].dtype == 'object') :
-        if  dot_flag[0] != 0:  #si une valeur dans id ou chargement a été sélectionnée
+        print('scatter_chosen 2')
+    #selection vbar plot x = objet
+    elif ((df[x_val].dtype == 'object') & (df[y_val].dtype == 'object')) | ((df[x_val].dtype == 'object') & ((df[y_val].dtype != 'object') & (df[y_val].nunique()<=2))):#(df[x_val].dtype == 'object') & (df[y_val].dtype == 'object'):
+        print('vbar_chosen 2')
+        # si une valeur dans id ou chargement a été sélectionnée
+        if dot_flag[0] != 0:
             b_2.renderers.remove(b_2_dot[0])
-            b_2_dot[0]=b_2.circle(x=df_retrieved[0][x_val], y=df_retrieved[0][y_val], size=10, color='red',name='b_2_dot') # red_dot
+            b_2_dot[0] = b_2.circle(x=df_retrieved[0][x_val], y=df_retrieved[0][y_val], size=10, color='red', name='b_2_dot')  # red_dot
         x_abs = df.groupby([x_val]).count()[y_val].index
-        y_ord = df.groupby([x_val]).count()[y_val].values
-        print('vbar_chosen2_count', 'x', x_abs, 'y', y_ord)
+        y_ord = df.groupby([x_val]).count()[y_val].values 
         #changement des valeurs 
-        new_data=dict()
-        new_data['x']=x_abs
-        new_data['y']=y_ord
-        source_b_2.data=new_data
-        print('vbar_data',new_data)
+        source_b_2.data['x']=x_abs
+        source_b_2.data['x']=y_ord
         b_2.x_range.factors = x_abs
-        b_2.y_range = FactorRange(y_val)
+        b_2.y_range = FactorRange(str(y_ord))
         b_2.xaxis.axis_label = x_val
         b_2.yaxis.axis_label = y_val
-        layout.children[3]=b_2
-    # x est  une variable de type float ou int    MEAN   
-    else : 
-        if dot_flag[0] != 0: #si une valeur dans id ou chargement a été sélectionnée
-            b_2.renderers.remove(b_2_dot[0])
-            b_2_dot[0]= b_2.circle(x=df_retrieved[0][x_val], y=df_retrieved[0][y_val], size=10, color='red',name='b_2_dot') # red_dot
-        
-        x_abs = df.groupby([x_val]).mean(numeric_only=False)[y_val].index
-        y_ord = df.groupby([x_val]).mean(numeric_only=False)[y_val].values
-        print('vbar_chosen2_mean', 'x', x_abs, 'y', y_ord)
+        labels = LabelSet(x='x', y='y', text='y', level='glyph',
+                         x_offset=0, y_offset=0, source=source_b_2,
+                         text_color='black',text_align='center')
+        b_2.add_layout(labels)
+        layout.children[3]=b_2 
            
-        #changement des valeurs 
-        new_data=dict()
-        new_data['x']=x_abs
-        new_data['y']=y_ord
-        source_b_2.data=new_data
-        print('vbar_data',new_data)
+    # x est  une variable de type float ou int       
+    else : 
+        print('else', 'x_val type :' ,df[x_val].dtype,'\n',
+                      'y_val type : ',df[y_val].dtype)
+        print(dot_flag[0])
+
+        # si une valeur dans id ou chargement a été sélectionnée
+        if  dot_flag[0] != 0:
+            b_2.renderers.remove(b_2_dot[0])
+            b_2_dot[0] = b_2.circle(x=df_retrieved[0][x_val], y=df_retrieved[0][y_val],
+                                size=10, color='red', name='b_2_dot')  # red dot
+            print('ajout point rouge')
+        
+        is_numeric = True
+        # si une valeur dans id ou chargement a été sélectionnée
+        if (df[y_val].dtype)=='object' : #cnt children x et flowg own realty
+            is_numeric = False
+    
+        x_abs = df.groupby([x_val]).mean(numeric_only=is_numeric)[y_val].index
+        y_ord = df.groupby([x_val]).mean(numeric_only=is_numeric)[y_val].values.round(decimals=2).tolist()
+        print(y_ord, max(y_ord))
+        source_b_2.data=dict(x=x_abs,y=y_ord)
         b_2.x_range.factors = x_abs
-        b_2.y_range = FactorRange(y_val)
+        start_ = 0
+        if dot_flag[0]==0 :
+            if df[y_val].mean()>0 : #variable négatif et positive
+                end_ = max(y_ord)*1.05
+            elif df[y_val].mean()<0 :
+                end_ = min(y_ord)*1.05 # si valeur négative la plus petite est la valeur la plus importante 
+        elif  dot_flag[0]==1 :
+            if (df[y_val].mean()>0) & (max(y_ord)>df_retrieved[0][y_val].values[0]) : #variable négatif et positive
+                end_ = max(y_ord)*1.05
+            elif (df[y_val].mean()<0) & (min(y_ord)<df_retrieved[0][y_val].values[0]):
+                end_ = min(y_ord)*1.05 # si valeur négative la plus petite est la valeur la plus importante 
+            elif (df[y_val].mean() < 0) & (min(y_ord) > df_retrieved[0][y_val].values[0]):
+                end_ =  df_retrieved[0][y_val].values[0]
+            elif (df[y_val].mean() > 0) & (max(y_ord) < df_retrieved[0][y_val].values[0]):
+                end_ =  df_retrieved[0][y_val].values[0]
+                
+        b_2.y_range.start = start_
+        b_2.y_range.end = end_
         b_2.xaxis.axis_label = x_val
         b_2.yaxis.axis_label = y_val
+        labels = LabelSet(x='x', y='y', text='y', level='glyph',
+                          x_offset=0, y_offset=0,source = source_b_2,
+                          text_color='black',text_align='center')
+        b_2.add_layout(labels)
         layout.children[3]=b_2
- 
+#    #selection  scatterplot #que des valeurs continues
+#    if (df[x_val].dtype != 'object') & (df[y_val].dtype != 'object'):  # sélection graphique
+#        if  dot_flag[0] != 0:  #si une valeur dans id ou chargement a été sélectionnée
+#            s_2.renderers.remove(s_2_dot[0])
+#            s_2_dot[0]=s_2.circle(x=df_retrieved[0][x_val], y=df_retrieved[0][y_val], size=10, color='red',name='s_2_dot') # red_dot
+#            
+#        source_s_2.data['x'] = df[x_val]  # nouvelles colonnes chargées
+#        source_s_2.data['y'] = df[y_val]  # nouvelles colonnes chargées 
+#        s_2.xaxis.axis_label = x_val
+#        s_2.yaxis.axis_label = y_val
+#        layout.children[3]=s_2
+#        print('scatter_chosen_2')
+#        
+#    #selection vbar plot x = objet COUNT
+#    elif (df[x_val].dtype == 'object') & (df[y_val].dtype == 'object') :
+#        if  dot_flag[0] != 0:  #si une valeur dans id ou chargement a été sélectionnée
+#            b_2.renderers.remove(b_2_dot[0])
+#            b_2_dot[0]=b_2.circle(x=df_retrieved[0][x_val], y=df_retrieved[0][y_val], size=10, color='red',name='b_2_dot') # red_dot
+#            print('ajout point rouge')
+#            
+#        x_abs = df.groupby([x_val]).count()[y_val].index
+#        y_ord = df.groupby([x_val]).count()[y_val].values
+#        y_ord = (y_ord.round(decimals=2)).tolist()
+#        print('vbar_chosen2_count', 'x', x_abs, 'y', y_ord)
+#        #changement des valeurs 
+#        new_data=dict()
+#        new_data['x']=x_abs
+#        new_data['y']=y_ord
+#        source_b_2.data=new_data
+#        print('vbar_data',new_data)
+#        b_2.x_range.factors = x_abs
+#        b_2.y_range = FactorRange(y_val)
+#        b_2.xaxis.axis_label = x_val
+#        b_2.yaxis.axis_label = y_val
+#        labels = LabelSet(x='x', y='y', text='y', level='glyph',
+#                         x_offset=0, y_offset=0, source=source_b_2,
+#                         text_color='black',text_align='center')
+#        b_2.add_layout(labels)
+#        layout.children[3]=b_2
+#    # x est  une variable de type float ou int    MEAN   
+#    else : #erreur id avec name_type_suite et dsays birth
+#        print('else', 'x_val type :' ,df[x_val].dtype,'\n',
+#                      'y_val type : ',df[y_val].dtype)
+#        print(dot_flag[0])
+#        if dot_flag[0] != 0: #si une valeur dans id ou chargement a été sélectionnée
+#            b_2.renderers.remove(b_2_dot[0])
+#            b_2_dot[0]= b_2.circle(x=df_retrieved[0][x_val], y=df_retrieved[0][y_val], size=10, color='red',name='b_2_dot') # red_dot
+#            print("ajout point rouge")
+#        is_numeric = True # par défaut y est un nombre
+#        # si une valeur dans id ou chargement a été sélectionnée
+#        if (df[y_val].dtype)=='object' : #cnt children x et flowg own realty
+#            is_numeric = False
+#        
+#        x_abs = df.groupby([x_val]).mean(numeric_only=is_numeric)[y_val].index
+#        y_ord = df.groupby([x_val]).mean(numeric_only=is_numeric)[y_val].values
+#        y_ord = (y_ord.round(decimals=2)).tolist()
+#        print('vbar_chosen2_mean', 'x', x_abs, 'y', y_ord)
+#           
+#        #changement des valeurs 
+#        new_data=dict()
+#        new_data['x']=x_abs
+#        new_data['y']=y_ord
+#        source_b_2.data=new_data
+#        print('vbar_data',new_data)
+#        b_2.x_range.factors = x_abs
+#        b_2.y_range = FactorRange(y_val)
+#        b_2.xaxis.axis_label = x_val
+#        b_2.yaxis.axis_label = y_val
+#        labels = LabelSet(x='x', y='y', text='y', level='glyph',
+#                         x_offset=0, y_offset=0, source=source_b_2,
+#                         text_color='black',text_align='center')
+#        b_2.add_layout(labels)
+#        layout.children[3]=b_2
+#
+
  
  #graphique distribution  monovariée à rajouter point de comparaison   
 def update_graph(attr, old, new):
-    graph_val = graph_select.value
+    graph_val = graph_select.value #nom dela variable sélectionné
     new_data=dict()
     
     if df[graph_val].dtype !='object':
@@ -299,42 +481,57 @@ def update_graph(attr, old, new):
             g.renderers.remove(dot[0])
             print(df_retrieved[0][graph_val])
             dot[0]=g.circle(x=round(len(df[graph_val])/2), y=df_retrieved[0][graph_val], size=10, color='red', name='dot') # se positionne au milieu du graph
-            
+            print('ajout point rouge')
+
         new_data['x']= [i for i in range (len(df[graph_val]))]
         new_data['y']= df[graph_val]
-        source_g.data = new_data
+        source_g.data['x'] = new_data['x']
+        source_g.data['y'] = new_data['y']
+        
         layout.children[5]=g
         
     elif df[graph_val].dtype =='object':
         if dot_flag[0] != 0:
-            g.renderers.remove(dot[0])
-            val = [idx for idx, val in enumerate(df[graph_val].value_counts().index) if val == df_retrieved[0][graph_val]][0] #index de la valeur du graph qui correspond a la variable de l'observation
+            print( df_retrieved[0][graph_val].values)
+            print('affiche les renderers',g_2.renderers)
+            g_2.renderers.remove(dot_2[0])
+            val = [idx for idx, val in enumerate(df[graph_val].value_counts().index) if val == df_retrieved[0][graph_val].values][0] #index de la valeur du graph qui correspond a la variable de l'observation
             print('val', val, 'y', df[graph_val].value_counts().values[val])
             df_retrieved[0][graph_val]#valeur de l'observation
-            dot_2[0] = g_2.circle(x= val,
-                                y=(df[graph_val].value_counts().values[val]), size=10, color='red', name='dot_2')  # red_dot
+            dot_2[0] = g_2.circle(x=df_retrieved[0][graph_val],
+                                  y=max(df[graph_val].value_counts().values)/2,
+                                  size=10, color='red',name='dot_2')  # red_dot
+            print('ajout point rouge')
         
-        new_data['x'] = df[graph_val].value_counts().index #x = nom des valeurs
-        new_data['y'] = df[graph_val].value_counts().values
-        source_g_2.data = new_data
-        g_2.x_range = FactorRange([val for val in df[graph_val].unique()])
-        g_2.y_range = Range1d(df[graph_val].value_counts().values)
-        g_2.xaxis.axis_label = 'index'
-        g_2.yaxis.axis_label = graph_val
-        layout.children[5]=g_2
+            new_data['x'] = df[graph_val].value_counts().index #x = nom des valeurs
+            new_data['y'] = df[graph_val].value_counts().values
+            source_g_2.data['x'] = new_data['x']
+            source_g_2.data['y'] = new_data['y']
+            g_2.x_range = FactorRange(*[val for val in df[graph_val].unique()])
+            g_2.y_range = Range1d(0,max(df[graph_val].value_counts().values)*1.05)
+            g_2.xaxis.axis_label = 'index'
+            g_2.yaxis.axis_label = graph_val
+            labels = LabelSet(x='x', y='y', text='y', level='glyph',
+                         x_offset=0, y_offset=0, source=source_g_2,
+                         text_color='black',text_align='center')
+            g_2.add_layout(labels)
+            layout.children[5]=g_2
+        
         
     print(graph_val,df[graph_val])
-    
+
+def update_text_loading(attr, old, new):
+    text.text=("Veuillez patienter la prédiction est en cours...")
+    decoded[0] = base64.b64decode(new)
+    curdoc().add_next_tick_callback(upload_data)
     
 # FileInput => df => cleaned_df => post => feature_importance & prediction & score
-def upload_data(attr, old, new):  # charger et envoyer df fastapi nettoyage
-    #chargement df
-    loading_div[0] = Div(text="File is being loaded...", width=200, height=50)
+def upload_data():  # charger et envoyer df fastapi nettoyage
+    #loading_div[0] = Div(text="File is being loaded...", width=200, height=50)
     flag_upload[0] = 1
     url = "https://docker-projet-7.azurewebsites.net/uploadfile/"
     print("dataset has been uploaded succesfully")
-    decoded = base64.b64decode(new)
-    f = io.BytesIO(decoded)
+    f = io.BytesIO(decoded[0])
     df_retrieved[0] = pd.read_csv(f) # df importé
     print(df_retrieved[0]['SK_ID_CURR'])
     id = df_retrieved[0]['SK_ID_CURR'].values
@@ -370,21 +567,24 @@ def upload_data(attr, old, new):  # charger et envoyer df fastapi nettoyage
     print(df_retrieved[0])
     
 #################################################### #Auto complete  #############################################################
-def update_id(attr, old, new):  # attrname, old, new => obligatoire pour ce composant
-    global res
-    global value_input  # pour récupérer la variable pour le graph
-    print('update_id_in_progress')
-    value_input = auto_complete_input.value  # valeur dans le champs
-    # res = requests.post(url+value_input) #requete a fastapi
-    print(value_input)
+def update_text_id (attr, old, new):
+    text.text=("Veuillez patienter la prédiction est en cours...")
+    value_input[0] = new  # valeur dans le champs
+    curdoc().add_next_tick_callback(update_id)
 
-        
+def update_id():  # attrname, old, new => obligatoire pour ce composant
+    global res
+    # pour récupérer la variable pour le graph
+    print('update_id_in_progress')
+    # res = requests.post(url+value_input) #requete a fastapi
+    print(value_input[0])
+
     if flag_upload[0] == 0:# demo ou aucune donnéee rajoutée
         url =  "https://docker-projet-7.azurewebsites.net/predict/"
-        res = requests.post(url+str(value_input))
-        print('contenu apres envoi '+str(value_input), res._content)
+        res = requests.post(url+str(value_input[0]))
+        print('contenu apres envoi '+str(value_input[0]), res._content)
         
-        df_retrieved[0]=df[df['SK_ID_CURR'] == int(value_input)] #ligne d'info d'un id 
+        df_retrieved[0]=df[df['SK_ID_CURR'] == int(value_input[0])] #ligne d'info d'un id 
         ## vérifier si colonnes différentes de 0 et rajouter
         df_retrieved[1] = json.loads(res._content.decode('utf-8'))  # data_retrieved
         new_data = dict()  # cd pour instancier en un seul coup avec les nouvelles données sinon erreur de longueur des colonnes
@@ -403,12 +603,9 @@ def update_id(attr, old, new):  # attrname, old, new => obligatoire pour ce comp
         range_x = Range1d(-(min(round(df_filtered['feature_importance']))*0.05),
                           max(round(df_filtered['feature_importance']))*0.05)
         fl.x_range = range_x
-    
-        
-        
         
         text.text = 'Le crédit sera {} pour l\'id {} et le score est de {}'.format(
-        dict_credit[df_retrieved[1]['prediction']], value_input,df_retrieved[1]['score'])  # 100057
+        dict_credit[df_retrieved[1]['prediction']], value_input[0],str(df_retrieved[1]['score'])[:6])  # 100057
         dot_flag[0]=1
 #####################################################  select   ###############################################################
 x_select = Select(title='X-Axis Variable:',
@@ -428,8 +625,8 @@ y_select.on_change('value', update_select_1)
 x_select_2.on_change('value', update_select_2)
 y_select_2.on_change('value', update_select_2)
 graph_select.on_change('value', update_graph)
-auto_complete_input.on_change('value', update_id)#new
-file_input.on_change('value', upload_data)#new
+auto_complete_input.on_change('value', update_text_id)#new
+file_input.on_change('value', update_text_loading)#new
 #####################################################  layout   ###############################################################
 # Create a layout for the widgets
 #loading_div[0] = Div(text="Loading file...", width=200, height=50)
@@ -446,11 +643,11 @@ layout = column([inputs,
                 graph_select,
                 g],sizing_mode='stretch_both')
 
+print('fin')
 
 # Add the widgets to the current document
 curdoc().add_root(row(column([text,
                         file_input,
-                        loading_div[0],
                         auto_complete_input,
                         fl,
                         f]),layout))
