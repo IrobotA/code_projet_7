@@ -1,0 +1,195 @@
+{
+  "table_info": {
+    "table_name": "customers_demo",
+    "total_rows": 1070,
+    "total_columns": 8,
+    "analysis_timestamp": "2025-07-07T16:02:59.083086"
+  },
+  "completeness": {
+    "customer_id": {
+      "total_rows": 1070,
+      "missing_count": "67",
+      "missing_percentage": 6.26,
+      "completeness_score": 93.74
+    },
+    "first_name": {
+      "total_rows": 1070,
+      "missing_count": "60",
+      "missing_percentage": 5.61,
+      "completeness_score": 94.39
+    },
+    "email": {
+      "total_rows": 1070,
+      "missing_count": "50",
+      "missing_percentage": 4.67,
+      "completeness_score": 95.33
+    },
+    "age": {
+      "total_rows": 1070,
+      "missing_count": "90",
+      "missing_percentage": 8.41,
+      "completeness_score": 91.59
+    },
+    "purchase_amount": {
+      "total_rows": 1070,
+      "missing_count": "80",
+      "missing_percentage": 7.48,
+      "completeness_score": 92.52
+    },
+    "registration_date": {
+      "total_rows": 1070,
+      "missing_count": "90",
+      "missing_percentage": 8.41,
+      "completeness_score": 91.59
+    },
+    "is_active": {
+      "total_rows": 1070,
+      "missing_count": "40",
+      "missing_percentage": 3.74,
+      "completeness_score": 96.26
+    },
+    "phone": {
+      "total_rows": 1070,
+      "missing_count": "40",
+      "missing_percentage": 3.74,
+      "completeness_score": 96.26
+    }
+  },
+  "validity": {
+    "customer_id": {
+      "total_values": 1070,
+      "non_null_values": 1003,
+      "valid_count": "1003",
+      "invalid_count": "0",
+      "validity_percentage": 100.0,
+      "issues": []
+    },
+    "first_name": {
+      "total_values": 1070,
+      "non_null_values": 1010,
+      "valid_count": "1010",
+      "invalid_count": "0",
+      "validity_percentage": 100.0,
+      "issues": []
+    },
+    "email": {
+      "total_values": 1070,
+      "non_null_values": 1020,
+      "valid_count": "1020",
+      "invalid_count": "0",
+      "validity_percentage": 100.0,
+      "issues": []
+    },
+    "age": {
+      "total_values": 1070,
+      "non_null_values": 980,
+      "valid_count": "980",
+      "invalid_count": "0",
+      "validity_percentage": 100.0,
+      "issues": []
+    },
+    "purchase_amount": {
+      "total_values": 1070,
+      "non_null_values": 990,
+      "valid_count": "990",
+      "invalid_count": "0",
+      "validity_percentage": 100.0,
+      "issues": []
+    },
+    "registration_date": {
+      "total_values": 1070,
+      "non_null_values": 980,
+      "valid_count": "960",
+      "invalid_count": "20",
+      "validity_percentage": 97.96,
+      "issues": [
+        "Dates before 1900-01-01",
+        "Dates after 2100-01-01"
+      ]
+    },
+    "is_active": {
+      "total_values": 1070,
+      "non_null_values": 1030,
+      "valid_count": "18",
+      "invalid_count": "1012",
+      "validity_percentage": 1.75,
+      "issues": [
+        "Length > 255"
+      ]
+    },
+    "phone": {
+      "total_values": 1070,
+      "non_null_values": 1030,
+      "valid_count": "1030",
+      "invalid_count": "0",
+      "validity_percentage": 100.0,
+      "issues": []
+    }
+  },
+  "uniqueness": {
+    "customer_id": {
+      "total_rows": 1070,
+      "unique_count": 1001,
+      "duplicate_count": 69,
+      "uniqueness_percentage": 93.55,
+      "top_duplicates": {
+        "999.0": 3,
+        "998.0": 2
+      }
+    },
+    "first_name": {
+      "total_rows": 1070,
+      "unique_count": 6,
+      "duplicate_count": 1064,
+      "uniqueness_percentage": 0.56,
+      "top_duplicates": {
+        "John": 250,
+        "Jane": 250,
+        "Bob": 250,
+        "Alice": 250,
+        "VeryLongFirstNameThatExceedsTypicalLimits": 10
+      }
+    },
+    "email": {
+      "total_rows": 1070,
+      "unique_count": 9,
+      "duplicate_count": 1061,
+      "uniqueness_percentage": 0.84,
+      "top_duplicates": {
+        "john.doe@email.com": 250,
+        "jane.smith@company.org": 250,
+        "bob@test.co.uk": 250,
+        "alice.wilson@domain.net": 250,
+        "invalid-email": 5
+      }
+    },
+    "age": {
+      "total_rows": 1070,
+      "unique_count": 66,
+      "duplicate_count": 1004,
+      "uniqueness_percentage": 6.17,
+      "top_duplicates": {
+        "79.0": 29,
+        "75.0": 26,
+        "77.0": 24,
+        "52.0": 24,
+        "50.0": 23
+      }
+    },
+    "purchase_amount": {
+      "total_rows": 1070,
+      "unique_count": 973,
+      "duplicate_count": 97,
+      "uniqueness_percentage": 90.93,
+      "top_duplicates": {
+        "-100.0": 10,
+        "-50.0": 10
+      }
+    },
+    "registration_date": {
+      "total_rows": 1070,
+      "unique_count": 963,
+      "duplicate_count": 107,
+      "uniqueness_percentage": 90.0,
+      "top_duplicates": {
+        
