@@ -1,0 +1,38 @@
+# BigQuery Data Quality Checker Requirements
+# For use with Visual Studio Code
+
+# Core data processing
+pandas>=1.5.0
+numpy>=1.21.0
+
+# Google Cloud BigQuery
+google-cloud-bigquery>=3.4.0
+google-cloud-bigquery-storage>=2.16.0  # For faster data loading
+google-auth>=2.15.0
+google-auth-oauthlib>=0.8.0
+google-auth-httplib2>=0.1.0
+
+# Data analysis and visualization (for VS Code)
+matplotlib>=3.6.0
+seaborn>=0.11.0
+plotly>=5.11.0
+ipywidgets>=8.0.0  # For interactive notebooks
+
+# Development tools (VS Code integration)
+jupyter>=1.0.0
+jupyterlab>=3.5.0
+ipykernel>=6.19.0
+
+# Utilities
+python-dotenv>=0.21.0  # For environment variables
+pyyaml>=6.0  # For configuration files
+tqdm>=4.64.0  # Progress bars
+
+# Data quality specific
+great-expectations>=0.15.0  # Optional: Advanced data validation
+pyjanitor>=0.24.0  # Optional: Data cleaning utilities
+
+# Development and testing (optional)
+pytest>=7.2.0
+black>=22.10.0  # Code formatting
+flake8>=5.0.0  # Linting

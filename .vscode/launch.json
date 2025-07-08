@@ -1,0 +1,91 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Run BigQuery Quality Checker",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/bigquery_data_quality.py",
+            "console": "integratedTerminal",
+            "env": {
+                "GOOGLE_APPLICATION_CREDENTIALS": "${workspaceFolder}/credentials/bigquery-service-account.json",
+                "GOOGLE_CLOUD_PROJECT": "${input:projectId}"
+            },
+            "args": []
+        },
+        {
+            "name": "Debug BigQuery Quality Checker",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/bigquery_data_quality.py",
+            "console": "integratedTerminal",
+            "stopOnEntry": false,
+            "env": {
+                "GOOGLE_APPLICATION_CREDENTIALS": "${workspaceFolder}/credentials/bigquery-service-account.json",
+                "GOOGLE_CLOUD_PROJECT": "${input:projectId}"
+            },
+            "args": [],
+            "justMyCode": false
+        },
+        {
+            "name": "Run Jupyter Notebook",
+            "type": "python",
+            "request": "launch",
+            "module": "jupyter",
+            "args": [
+                "notebook",
+                "--no-browser",
+                "--port=8888"
+            ],
+            "console": "integratedTerminal",
+            "env": {
+                "GOOGLE_APPLICATION_CREDENTIALS": "${workspaceFolder}/credentials/bigquery-service-account.json"
+            }
+        },
+        {
+            "name": "Test BigQuery Connection",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/test_bigquery_connection.py",
+            "console": "integratedTerminal",
+            "env": {
+                "GOOGLE_APPLICATION_CREDENTIALS": "${workspaceFolder}/credentials/bigquery-service-account.json",
+                "GOOGLE_CLOUD_PROJECT": "${input:projectId}"
+            }
+        },
+        {
+            "name": "Run Quality Analysis on Specific Table",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/analyze_table.py",
+            "console": "integratedTerminal",
+            "env": {
+                "GOOGLE_APPLICATION_CREDENTIALS": "${workspaceFolder}/credentials/bigquery-service-account.json",
+                "GOOGLE_CLOUD_PROJECT": "${input:projectId}",
+                "BQ_DATASET_ID": "${input:datasetId}",
+                "BQ_TABLE_ID": "${input:tableId}"
+            },
+            "args": []
+        }
+    ],
+    "inputs": [
+        {
+            "id": "projectId",
+            "description": "Google Cloud Project ID",
+            "default": "",
+            "type": "promptString"
+        },
+        {
+            "id": "datasetId",
+            "description": "BigQuery Dataset ID",
+            "default": "",
+            "type": "promptString"
+        },
+        {
+            "id": "tableId",
+            "description": "BigQuery Table ID",
+            "default": "",
+            "type": "promptString"
+        }
+    ]
+}
