@@ -15,15 +15,6 @@
         "*.bq": "sql"
     },
     
-    "sqltools.connections": [
-        {
-            "name": "BigQuery",
-            "driver": "BigQuery",
-            "projectId": "${env:GOOGLE_CLOUD_PROJECT}",
-            "keyFilename": "${env:GOOGLE_APPLICATION_CREDENTIALS}"
-        }
-    ],
-    
     "python.analysis.extraPaths": [
         "./src",
         "./"
@@ -46,7 +37,7 @@
     
     "[python]": {
         "editor.codeActionsOnSave": {
-            "source.organizeImports": "explicit"
+            "source.organizeImports": true
         }
     },
     
@@ -55,12 +46,12 @@
     },
     
     "terminal.integrated.env.osx": {
-        "GOOGLE_APPLICATION_CREDENTIALS": "${workspaceFolder}/credentials/bigquery-service-account.json"
+        "GOOGLE_CLOUD_PROJECT": "your-project-id"
     },
     "terminal.integrated.env.linux": {
-        "GOOGLE_APPLICATION_CREDENTIALS": "${workspaceFolder}/credentials/bigquery-service-account.json"
+        "GOOGLE_CLOUD_PROJECT": "your-project-id" 
     },
     "terminal.integrated.env.windows": {
-        "GOOGLE_APPLICATION_CREDENTIALS": "${workspaceFolder}\\credentials\\bigquery-service-account.json"
+        "GOOGLE_CLOUD_PROJECT": "your-project-id"
     }
 }

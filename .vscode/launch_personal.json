@@ -1,0 +1,58 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Personal Account - Quick Test",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/personal_account_example.py",
+            "console": "integratedTerminal",
+            "env": {
+                "GOOGLE_CLOUD_PROJECT": "data-platform-dev"
+            },
+            "args": []
+        },
+        {
+            "name": "Personal Account - Setup Authentication",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/bigquery_personal_auth.py",
+            "console": "integratedTerminal",
+            "env": {
+                "GOOGLE_CLOUD_PROJECT": "data-platform-dev"
+            }
+        },
+        {
+            "name": "Debug Personal BigQuery Checker",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/personal_account_example.py",
+            "console": "integratedTerminal",
+            "stopOnEntry": false,
+            "env": {
+                "GOOGLE_CLOUD_PROJECT": "data-platform-dev"
+            },
+            "args": [],
+            "justMyCode": false
+        },
+        {
+            "name": "Run Jupyter (Personal Auth)",
+            "type": "python",
+            "request": "launch",
+            "module": "jupyter",
+            "args": ["notebook", "--no-browser", "--port=8888"],
+            "console": "integratedTerminal",
+            "env": {
+                "GOOGLE_CLOUD_PROJECT": "data-platform-dev"
+            }
+        }
+    ],
+    "inputs": [
+        {
+            "id": "projectId",
+            "description": "Google Cloud Project ID (that you have access to)",
+            "default": "data-platform-dev",
+            "type": "promptString"
+        }
+    ]
+}

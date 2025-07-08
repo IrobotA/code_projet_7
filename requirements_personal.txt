@@ -1,0 +1,18 @@
+# BigQuery Data Quality - Personal Account Requirements
+# Minimal setup for users with personal authentication only
+
+# Core BigQuery and data processing
+google-cloud-bigquery>=3.4.0
+pandas>=1.5.0
+numpy>=1.21.0
+
+# Authentication (uses your personal account)
+google-auth>=2.15.0
+
+# Optional: For enhanced VS Code experience
+jupyter>=1.0.0
+matplotlib>=3.6.0
+
+# Optional: Development tools
+black>=22.10.0
+flake8>=5.0.0
