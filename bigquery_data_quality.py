@@ -32,7 +32,7 @@ class BigQueryDataQualityChecker:
     """
     
     def __init__(self, project_id: str, credentials_path: Optional[str] = None, 
-                 location: str = 'US'):
+                 location: str = 'europe-west1'):
         """
         Initialize BigQuery client
         

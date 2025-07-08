@@ -30,7 +30,7 @@ class PersonalBigQueryDataQualityChecker:
     No service account required - uses your personal Google account
     """
     
-    def __init__(self, project_id: str, location: str = 'US'):
+    def __init__(self, project_id: str, location: str = 'europe-west1'):
         """
         Initialize BigQuery client with personal authentication
         
