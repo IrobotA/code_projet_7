@@ -1,0 +1,57 @@
+{
+    "python.defaultInterpreterPath": "./venv/bin/python",
+    "python.terminal.activateEnvironment": true,
+    "python.linting.enabled": true,
+    "python.linting.flake8Enabled": true,
+    "python.formatting.provider": "black",
+    "python.formatting.blackArgs": ["--line-length", "88"],
+    
+    "jupyter.interactiveWindow.textEditor.executeSelection": true,
+    "jupyter.sendSelectionToInteractiveWindow": true,
+    "jupyter.notebookFileRoot": "${workspaceFolder}",
+    
+    "files.associations": {
+        "*.sql": "sql",
+        "*.bq": "sql"
+    },
+    
+    "python.analysis.extraPaths": [
+        "./src",
+        "./"
+    ],
+    
+    "python.testing.pytestEnabled": true,
+    "python.testing.pytestArgs": [
+        "tests"
+    ],
+    
+    "files.exclude": {
+        "**/__pycache__": true,
+        "**/.pytest_cache": true,
+        "**/bigquery_quality.log": false,
+        "**/*.pyc": true
+    },
+    
+    "editor.rulers": [88],
+    "editor.formatOnSave": true,
+    
+    "[python]": {
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": true
+        }
+    },
+    
+    "[json]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    
+    "terminal.integrated.env.osx": {
+        "GOOGLE_CLOUD_PROJECT": "your-project-id"
+    },
+    "terminal.integrated.env.linux": {
+        "GOOGLE_CLOUD_PROJECT": "your-project-id" 
+    },
+    "terminal.integrated.env.windows": {
+        "GOOGLE_CLOUD_PROJECT": "your-project-id"
+    }
+}
